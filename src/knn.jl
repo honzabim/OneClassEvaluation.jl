@@ -5,12 +5,12 @@ mutable struct KNNAnom
     KNNAnom(k::Int, v::Symbol = :gamma) = new(nothing, k, v)
 end
 
-fit!(m::KNNAnom, x) = fit!(m, x, m.v)
-function fit!(m::KNNAnom, x, v::Symbol)
-    m.knndata = KNNAnomaly(x, v)
+ScikitLearn.fit!(m::KNNAnom, x) = ScikitLearn.fit!(m, x, m.v)
+function ScikitLearn.fit!(m::KNNAnom, x, v::Symbol)
+    m.knndata = kNN.KNNAnomaly(collect(x'), v)
 end
 
-predict(m::KNNAnom, x, k) = StatsBase.predict(m, x, k)
-predict(m::KNNAnom, x) = StatsBase.predict(m, x, m.k)
+ScikitLearn.predict(m::KNNAnom, x, k) = StatsBase.predict(m.knndata, collect(x'), k)
+ScikitLearn.predict(m::KNNAnom, x) = ScikitLearn.predict(m, x, m.k)
 
-decision_function(m::KNNAnom, x) = predict(m, x)
+ScikitLearn.decision_function(m::KNNAnom, x) = ScikitLearn.predict(m, x)
