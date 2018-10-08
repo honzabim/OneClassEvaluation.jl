@@ -1,0 +1,10 @@
+authors = ["honzabim <honzabim@gmail.com>"]
+name = "OneClassEvaluation.jl"
+uuid = "83e5aff0-caf0-11e8-1878-4dda8f8cbcd6"
+version = "0.1.0"
+
+[deps]
+ADatasets = "c8209e5e-a751-11e8-2961-e9f697b03c93"
+ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+kNN = "fa47a99c-a754-11e8-3c60-b99d25d7a586"
