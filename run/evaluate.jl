@@ -21,15 +21,17 @@ classificators = [createOCSVM,
                   createIF
                   ]
 
-parameters = [[[0.1 0.2]],
-              [[3 4 5], [:kappa :gamma :delta]],
-              [[10 20 50]],
-              [[50 100 200]]
+parameters = [([["scale"]], ["gamma"]),
+              ([[3 4 5], [:kappa :gamma :delta]], ["k", "anomalyMetric"]),
+              ([[10 20 50]], ["num_neighbors"]),
+              ([[50 100 200]], ["num_estimators"])
               ]
 
+cnames = ["OneClassSVM", "kNN", "LocalOutlierFactor", "IsolationForest"]
+
 loadData(datasetName, difficulty) =  ADatasets.makeset(ADatasets.loaddataset(datasetName, difficulty, dataPath)..., 0.8, "low")
-train, test, clusterdness = loadData("abalone", "easy")
+train, test, clusterdness = loadData("pendigits", "easy")
 
 normal = collect((train[1][:, train[2] .== 1])')
 
-OneClassEvaluation.runmodels(classificators, parameters, normal, test)
+result = OneClassEvaluation.runmodels(classificators, parameters, cnames, normal, test)
