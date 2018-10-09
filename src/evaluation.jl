@@ -5,8 +5,9 @@ gridsearch(f, parameters...) = map(f, Base.product(parameters...))
 function runmodel(model, parameters, train, test)
     m = model(parameters...)
     ScikitLearn.fit!(m, train)
-    scores = decision_function(m, collect(test[1]'))[:]
+    scores = .- decision_function(m, collect(test[1]'))[:]
     println(model)
+    println(parameters)
     println(getauc(scores, test[2] .- 1))
 end
 
