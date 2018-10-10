@@ -66,44 +66,48 @@ function mc_volume_estimate(scorefunc, threshold, mins, maxs, ϵ, iter::Int = 0)
 end
 
 function runmodel(model, parameters, parnames, name, train, test)
+    dfs = []
+    for iteration in 1:10
+        println("Iteration: $iteration")
+        df = DataFrame()
+        df[:name] = name
+        df[:iteration] = iteration
+        foreach((pname, pval) -> df[Symbol(pname)] = pval, parnames, parameters)
 
-    df = DataFrame()
-    df[:name] = name
-    foreach((pname, pval) -> df[Symbol(pname)] = pval, parnames, parameters)
+        m = model(parameters...)
+        ScikitLearn.fit!(m, train)
+        scores = .- decision_function(m, collect(test[1]'))[:]
+        labels = test[2] .- 1
 
-    m = model(parameters...)
-    ScikitLearn.fit!(m, train)
-    scores = .- decision_function(m, collect(test[1]'))[:]
-    labels = test[2] .- 1
+        fpr, tpr = EvalCurves.roccurve(scores, labels)
+        auc = getauc(scores, labels)
+        df[:auc] = auc
+        tpr_at_5 = EvalCurves.tpr_at_fpr(fpr, tpr, 0.05)
+        df[:tpr_at_5] = tpr_at_5
+        auc_at_5 = EvalCurves.auc_at_p(fpr, tpr, 0.05)
+        df[:auc_at_5] = auc_at_5
+        prec_at_k = precision_at_k(scores, labels, 10)
+        df[:prec_at_k] = prec_at_k
+        tshld = threshold_at_fpr(scores, labels, 0.05)
+        df[:tshld05] = tshld
 
-    fpr, tpr = EvalCurves.roccurve(scores, labels)
-    auc = getauc(scores, labels)
-    df[:auc] = auc
-    tpr_at_5 = EvalCurves.tpr_at_fpr(fpr, tpr, 0.05)
-    df[:tpr_at_5] = tpr_at_5
-    auc_at_5 = EvalCurves.auc_at_p(fpr, tpr, 0.05)
-    df[:auc_at_5] = auc_at_5
-    prec_at_k = precision_at_k(scores, labels, 10)
-    df[:prec_at_k] = prec_at_k
-    tshld = threshold_at_fpr(scores, labels, 0.05)
-    df[:tshld05] = tshld
+        alldata = vcat(train, collect(test[1]'))
+        volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.05), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
+        df[:volume05] = volume
+        volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.1), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
+        df[:volume10] = volume
+        volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.5), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
+        df[:volume50] = volume
 
-    alldata = vcat(train, collect(test[1]'))
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.05), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
-    df[:volume05] = volume
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.1), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
-    df[:volume10] = volume
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.5), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
-    df[:volume50] = volume
-
-    # Console output
-    println(name)
-    for i in 1:length(parameters)
-        println("$(parnames[i]) = $(parameters[i])")
+        # Console output
+        println(name)
+        for i in 1:length(parameters)
+            println("$(parnames[i]) = $(parameters[i])")
+        end
+        println("AUC = $auc")
+        push!(dfs, df)
     end
-    println("AUC = $auc")
-
-    return df
+    return vcat(dfs...)
 end
 
 function runandsave(classifier, parameters, name, train, test, folder)
