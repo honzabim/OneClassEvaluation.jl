@@ -1,6 +1,8 @@
-folderpath = "D:/dev/julia/"
+# folderpath = "D:/dev/julia/"
+folderpath = "home/bimjan/dev/julia/"
 const dataPath = folderpath * "data/loda/public/datasets/numerical"
 push!(LOAD_PATH, folderpath, folderpath * "OneClassEvaluation.jl/src/")
+const outputpath = folderpath * "experiments/OneClass/"
 
 using OneClassEvaluation
 using ScikitLearn
@@ -21,17 +23,24 @@ classificators = [createOCSVM,
                   createIF
                   ]
 
-parameters = [([["scale"]], ["gamma"]),
-              ([[3 4 5], [:kappa :gamma :delta]], ["k", "anomalyMetric"]),
-              ([[10 20 50]], ["num_neighbors"]),
+parameters = [([[0.01 0.05 0.1 0.5 1. 5. 10. 50. 100.]], ["gamma"]),
+              ([[3 4 5], [:kappa :gamma]], ["k", "anomalyMetric"]),
+              ([[10 20 50 100]], ["num_neighbors"]),
               ([[50 100 200]], ["num_estimators"])
               ]
 
 cnames = ["OneClassSVM", "kNN", "LocalOutlierFactor", "IsolationForest"]
 
+dataset = "haberman"
+if length(ARGS) != 0
+    dataset = ARGS[1]
+end
+
 loadData(datasetName, difficulty) =  ADatasets.makeset(ADatasets.loaddataset(datasetName, difficulty, dataPath)..., 0.8, "low")
-train, test, clusterdness = loadData("pendigits", "easy")
+train, test, clusterdness = loadData(dataset, "normal")
 
 normal = collect((train[1][:, train[2] .== 1])')
 
-result = OneClassEvaluation.runmodels(classificators, parameters, cnames, normal, test)
+outp = outputpath * dataset * "/"
+mkpath(outp)
+result = OneClassEvaluation.runmodels(classificators, parameters, cnames, normal, test, outp)

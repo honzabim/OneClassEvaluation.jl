@@ -6,6 +6,8 @@ module OneClassEvaluation
     using ScikitLearn
     using DataFrames
     using CSV
+    using Statistics
+    using EvalCurves
 
     include("knn.jl")
     include("evaluation.jl")
