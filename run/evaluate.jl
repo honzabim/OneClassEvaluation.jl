@@ -37,7 +37,7 @@ if length(ARGS) != 0
 end
 
 loadData(datasetName, difficulty) =  ADatasets.makeset(ADatasets.loaddataset(datasetName, difficulty, dataPath)..., 0.8, "low")
-train, test, clusterdness = loadData(dataset, "normal")
+train, test, clusterdness = loadData(dataset, "easy")
 
 normal = collect((train[1][:, train[2] .== 1])')
 

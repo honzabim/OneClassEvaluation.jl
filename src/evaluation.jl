@@ -89,11 +89,11 @@ function runmodel(model, parameters, parnames, name, train, test)
     df[:tshld05] = tshld
 
     alldata = vcat(train, collect(test[1]'))
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.05), minimum(alldata, 1), maximum(alldata, 1), 0, 10)
+    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.05), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
     df[:volume05] = volume
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.1), minimum(alldata, 1), maximum(alldata, 1), 0, 10)
+    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.1), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
     df[:volume10] = volume
-    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.5), minimum(alldata, 1), maximum(alldata, 1), 0, 10)
+    volume = mc_volume_estimate(x -> .- decision_function(m, x)[:], threshold_at_fpr(scores, labels, 0.5), minimum(alldata, dims = 1), maximum(alldata, dims = 1), 0, 10)
     df[:volume50] = volume
 
     # Console output
