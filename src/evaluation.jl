@@ -24,10 +24,10 @@ function threshold_at_fpr(scores, labels, fpr)
     ids = fpr .>= fps
     lastsmaller = sum(ids)
     if lastsmaller == 0
-        warn("No score to estimate lower FPR than $(fps[1])")
+        @warn "No score to estimate lower FPR than $(fps[1])"
         return NaN # thresholds[1]
     elseif lastsmaller == length(fps)
-        warn("No score to estimate higher FPR than $(fps[end])")
+        @warn "No score to estimate higher FPR than $(fps[end])"
         return NaN # thresholds[end]
     end
 
