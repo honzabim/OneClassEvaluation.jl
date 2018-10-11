@@ -1,5 +1,5 @@
-# folderpath = "D:/dev/julia/"
-folderpath = "/home/bimjan/dev/julia/"
+folderpath = "D:/dev/julia/"
+# folderpath = "/home/bimjan/dev/julia/"
 const dataPath = folderpath * "data/loda/public/datasets/numerical"
 push!(LOAD_PATH, folderpath, folderpath * "OneClassEvaluation.jl/src/")
 const outputpath = folderpath * "experiments/OneClass/"
