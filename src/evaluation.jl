@@ -50,7 +50,7 @@ end
 
 function runmodel(model, parameters, parnames, name, train, test)
     dfs = []
-    for iteration in 1:1
+    for iteration in 1:10
         println("Iteration: $iteration")
         df = DataFrame()
         df[:name] = name
