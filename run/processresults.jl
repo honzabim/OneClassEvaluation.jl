@@ -1,6 +1,7 @@
 using CSV
 using DataFrames
 using Plots
+using Measures
 
 plotly()
 
@@ -49,12 +50,21 @@ function getmaxformetrics()
     aucdf, aucat5df, trpat5df, precatkdf = map(vec -> vcat(vec...), pmdfs)
 end
 
-function plotall()
+function plotall(x, y)
     scatters = []
     for d in datasets
         data = allperdataset(d)
-        s = scatter(data[:volume05], data[:auc], title = d)
+        s = scatter(data[x], data[y], title = d, xlabel = "$x", ylabel = "$y", margin = 10mm)
         push!(scatters, s)
     end
-    display(plot(scatters..., layout=(3, 4), size = (1600, 900)))
+    display(plot(scatters..., layout=(3, 4), size = (1600, 900), legend = false))
+end
+
+function plotallcombinations()
+    p = vcat(perfmetrics, :volume05)
+    for i in 1:length(p)
+        for j in (i + 1):length(p)
+            plotall(p[j], p[i])
+        end
+    end
 end
